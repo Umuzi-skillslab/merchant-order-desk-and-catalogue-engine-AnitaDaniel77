@@ -1,10 +1,13 @@
 package com.paynestsystem.domain;
 
+import java.math.BigDecimal; // Change: needed for BigDecimal price
+
 public class OrderItem {
 
     // An order item links one product to how many were bought
-    private Product product;
-    private int quantity;
+    // Change: added final, these values never change after construction
+    private final Product product;
+    private final int quantity;
 
     // Constructor: runs when you add a product to an order
     // Example: new OrderItem(laptop, 2)
@@ -28,7 +31,9 @@ public class OrderItem {
 
     // Calculates the subtotal for this line
     // Example: Laptop R12000 x 2 = R24000
-    public double calculateTotal() {
-        return product.getPrice() * quantity;
+    // Change: uses Bigdecimal.multiply instead instead of the * operator,
+    // and BigDecimal.valueOf to turn quantity (an int) into a BigDecimal
+    public BigDecimal calculateTotal() {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 }

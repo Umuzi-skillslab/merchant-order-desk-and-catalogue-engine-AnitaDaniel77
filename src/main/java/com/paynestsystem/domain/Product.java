@@ -1,20 +1,22 @@
 package com.paynestsystem.domain;
 
+import java.math.BigDecimal; // Change: needed for BigDecimal price
+
 public class Product {
 
     // Each product has an id, a name, and a price
     // private means only this class can access them directly
-    private int id;
-    private String name;
-    private double price;
-
-    // Default constructor: needed for some frameworks and deserialization
-    public Product() {
-    }
+    // Change: added final, these values never change after construction
+    private final int id;
+    private final String name;
+    // Change: price is now BigDecimal instead of double avoids
+    // floating-point rounding errors when doing money math
+    private final BigDecimal price;
 
     // Constructor: runs when you create a new Product
-    // Example: new Product(1, "Laptop", 12000.00)
-    public Product(int id, String name, double price) {
+    // Example: new Product(1, "Laptop", new BigDecimal("12000.00"))
+    // change: price parameter os now BigDecimal, not double
+    public Product(int id, String name, BigDecimal price) {
         this.id = id;       // save the id
         this.name = name;   // save the name
         this.price = price; // save the price
@@ -29,7 +31,7 @@ public class Product {
         return name;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 }

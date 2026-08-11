@@ -1,5 +1,6 @@
 package com.paynestsystem.domain;
 
+import java.math.BigDecimal; // Change: needed for BigDecimal price
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,9 +8,12 @@ import java.util.List;
 public class Order {
 
     // Every order has an id, a customer, and a list of items
-    private int id;
-    private Customer customer;
-    private List<OrderItem> items;
+    // Change: added final; id, customer, and items never get
+    // reassigned after construction (items still grows via addItem,
+    // but the LIST OBJECT itself never changes)
+    private final int id;
+    private final Customer customer;
+    private final List<OrderItem> items;
 
     // Constructor: creates a new empty order for a customer
     public Order(int id, Customer customer) {
@@ -42,31 +46,18 @@ public class Order {
     }
 
     // Adds up all the line subtotals to get the grand total
-    public double calculateTotal() {
-        double total = 0;
+    // Change: returns BigDecimal now, starts from BigDecimal.ZERO
+    //  instead of 0.0, and uses BigDecimal.add instead of +
+    public BigDecimal calculateTotal() {
+        BigDecimal total = BigDecimal.ZERO;
         for (OrderItem item : items) {
-            total += item.calculateTotal();
+            total = total.add(item.calculateTotal());
         }
         return total;
     }
 
-    // Prints the order to the console like a simple receipt
-    public void printSummary() {
-        System.out.println("PayNest Order Summary");
-        System.out.println("Order ID  : " + id);
-        System.out.println("Customer  : " + customer.getName());
-        System.out.println("Email     : " + customer.getEmail());
-        System.out.println("---");
-
-        // Print each line item
-        for (OrderItem item : items) {
-            String name = item.getProduct().getName();
-            int qty = item.getQuantity();
-            double subtotal = item.calculateTotal();
-            System.out.println(name + " x" + qty + " = R" + subtotal);
-        }
-
-        System.out.println("---");
-        System.out.println("Grand Total: R" + calculateTotal());
-    }
+    // CHANGE: printSummary() removed from here entirely printing
+    // is not the domain object's job. It now lives in a separate
+    // OrderPresenter class (see OrderPresenter.java), so Order stays
+    // focused purely on business data and rules
 }
