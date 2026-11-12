@@ -4,6 +4,8 @@ import java.math.BigDecimal; // Change: needed for BigDecimal price
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.paynestsystem.payment.PaymentMethod; // needed for checkout
+import com.paynestsystem.payment.PaymentProcessor; // needed for checkout
 
 public class Order {
 
@@ -54,6 +56,17 @@ public class Order {
             total = total.add(item.calculateTotal());
         }
         return total;
+    }
+
+    // Capstone 3: one checkout path for every payment rail.
+    // Order only knows the PaymentMethod interface, never CardPayment or EftPayment.
+    public boolean checkout(PaymentMethod paymentMethod) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("Payment method cannot be null.");
+        }
+        BigDecimal total = calculateTotal(); // same total as Capstone 1, worked out once
+        PaymentProcessor processor = new PaymentProcessor();
+        return processor.processPayment(paymentMethod, total.doubleValue()); // brief's contract takes a double
     }
 
     // CHANGE: printSummary() removed from here entirely printing

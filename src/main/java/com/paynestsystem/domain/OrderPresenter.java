@@ -1,5 +1,6 @@
 package com.paynestsystem.domain;
 
+import com.paynestsystem.payment.PaymentMethod;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -30,5 +31,11 @@ public class OrderPresenter {
 
         System.out.println("---");
         System.out.println("Grand Total: " + CURRENCY.format(order.calculateTotal()));
+    }
+
+    // Confirmation line shown after a successful checkout
+    public static void printOrderComplete(Order order, PaymentMethod method) {
+        System.out.println("Order " + order.getId() + " completed: "
+                + CURRENCY.format(order.calculateTotal()) + " paid via " + method.getPaymentType());
     }
 }
