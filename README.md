@@ -34,10 +34,12 @@ To try another rail, change one line in PayNestApplication:
 
     mvn test
 
-You should see 16 tests pass with no failures: the 8 from Capstone 1, three payment rail tests
-(all four rails, bad amounts rejected, tap to pay only on card and wallet), and five checkout
-tests (amount charged equals the order total, a failed payment, a new rail added without
-touching Order, and a null payment method).
+You should see 20 tests pass with no failures: the 8 from Capstone 1, three payment rail tests
+(all four rails, bad amounts rejected, tap to pay only on card and wallet), two wallet balance
+tests (a payment above the balance fails, and the balance goes down after a payment), two card
+CVV tests (a 3 digit CVV is accepted, a bad one is rejected) and five checkout tests (amount
+charged equals the order total, a failed payment, a new rail added without touching Order, and
+a null payment method).
 
 ## Project Structure
 
@@ -71,6 +73,9 @@ The class diagram for the payment layer is in docs/class-diagram.md.
 - PaymentProcessor: the only class that runs a payment, and it only knows the interface
 - Order.checkout(): works out the total once and passes it to the chosen rail
 - Printing the completion line stays in OrderPresenter, so Order does not print anything
+- PaymentMethod stays an interface because it is the contract the checkout depends on, as the
+  brief specifies. AbstractPaymentMethod is just code reuse underneath it, so the shared checks
+  are written once
 
 ## Business Rules
 
@@ -81,9 +86,13 @@ The class diagram for the payment layer is in docs/class-diagram.md.
 - The amount charged at checkout equals order.calculateTotal(), with no discounts
 - Every rail has a fixed label (CARD, EFT, WALLET, CASH_ON_DELIVERY) for logs and receipts
 - Adding a new rail means one new class (extending AbstractPaymentMethod) plus one wiring line in PayNestApplication
-- Assumption: payments are simulated and always succeed, and the payment layer takes a double as
-  the brief specifies, so the BigDecimal order total is converted once at checkout (money maths
-  in the order stays BigDecimal)
+- A wallet payment fails when the amount is above the wallet balance, and the balance goes down
+  after a successful payment
+- A card needs a 3 digit CVV, which is checked when the card is created and never stored
+- Assumption: payments are simulated. A payment succeeds unless the rail's own rule refuses it
+  (for example a wallet with too little balance). The payment layer takes a double as the brief
+  specifies, so the BigDecimal order total is converted once at checkout (money maths in the
+  order stays BigDecimal)
 
 ## Why an interface instead of one big method
 
@@ -108,4 +117,5 @@ to strengthen a few areas beyond the original submission:
   OrderService allocates unique, incrementing order IDs
 
 Capstone 3 then added the payment layer and checkout flow on top of this model, and
-Hilbert's SME session feedback shaped the parent class and the TapToPay ability.
+Hilbert's SME session feedback shaped the parent class and the TapToPay ability. His review
+then led to the wallet balance rule and the card CVV check, each with its own tests.
